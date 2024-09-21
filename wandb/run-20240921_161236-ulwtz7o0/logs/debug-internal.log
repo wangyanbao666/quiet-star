@@ -1,0 +1,10 @@
+{"time":"2024-09-21T16:12:36.436226082+08:00","level":"INFO","msg":"using version","core version":"0.18.1"}
+{"time":"2024-09-21T16:12:36.436250267+08:00","level":"INFO","msg":"created symlink","path":"/home/yutian/quiet-star/wandb/run-20240921_161236-ulwtz7o0/logs/debug-core.log"}
+{"time":"2024-09-21T16:12:36.436319878+08:00","level":"INFO","msg":"using version","core version":"0.18.1"}
+{"time":"2024-09-21T16:12:36.43632625+08:00","level":"INFO","msg":"created symlink","path":"/home/yutian/quiet-star/wandb/run-20240921_161236-ulwtz7o0/logs/debug-core.log"}
+{"time":"2024-09-21T16:12:36.439738028+08:00","level":"INFO","msg":"created new stream","id":"ulwtz7o0"}
+{"time":"2024-09-21T16:12:36.439766301+08:00","level":"INFO","msg":"stream: started","id":"ulwtz7o0"}
+{"time":"2024-09-21T16:12:36.43979785+08:00","level":"INFO","msg":"sender: started","stream_id":{"value":"ulwtz7o0"}}
+{"time":"2024-09-21T16:12:36.439788503+08:00","level":"INFO","msg":"writer: Do: started","stream_id":{"value":"ulwtz7o0"}}
+{"time":"2024-09-21T16:12:36.439803892+08:00","level":"INFO","msg":"handler: started","stream_id":{"value":"ulwtz7o0"}}
+{"time":"2024-09-21T16:12:59.217099183+08:00","level":"INFO","msg":"stream: closing","id":"ulwtz7o0"}

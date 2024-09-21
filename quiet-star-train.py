@@ -2,32 +2,34 @@ import torch
 torch.backends.cuda.matmul.allow_tf32 = True
 import random
 from transformers import AutoTokenizer, AutoModelForCausalLM, TextGenerationPipeline, AutoConfig
+from modeling_mistral import MistralForCausalLM
 from accelerate import infer_auto_device_map, init_empty_weights, dispatch_model
 from datasets import load_dataset
 from torch.nn import CrossEntropyLoss
 from transformers import TrainingArguments, Trainer
 import os
 import time
-import wandb
-from huggingface_custom_callback import EarlyStoppingCallback
+# import wandb
+from transformers import EarlyStoppingCallback
 from eval_helpers import preprocess_eval_function_gsm, preprocess_eval_function_csqa, preprocess_function, compute_metrics, truncate_or_pad
 random_seed = 42
 torch.manual_seed(random_seed)
 random.seed(random_seed)
 
 # MAIN SETUP
-root_prefix = "YOUR_CACHE_PATH_HERE"
-wandb_cache_dir = root_prefix + "cache/quietstar/wandb_cache"
+# root_prefix = "YOUR_CACHE_PATH_HERE"
+# wandb_cache_dir = root_prefix + "cache/quietstar/wandb_cache"
 dataset_name = 'open-web-math/open-web-math'
 # dataset_name = 'c4'
 project_name = "quiet-star"
-os.environ["WANDB_PROJECT"] = project_name + "-" + dataset_name.split("/")[-1]
-os.environ["WANDB_CACHE_DIR"] = wandb_cache_dir
+# os.environ["WANDB_PROJECT"] = project_name + "-" + dataset_name.split("/")[-1]
+# os.environ["WANDB_CACHE_DIR"] = wandb_cache_dir
+os.environ["WANDB_DISABLED"] = "true"
 n_ahead_talk_global = 4
 n_passes_global = 2
 n_ahead_global = 12
 n_examples = 1_000
-full_batch_size = 8
+full_batch_size = 4
 eval_and_logging_steps = 10
 save_steps = 100
 
@@ -53,11 +55,11 @@ def model_init(params):
 
     model_name = "mistralai/Mistral-7B-v0.1"
     print("Loading model")
-    model = AutoModelForCausalLM.from_pretrained(
+    model = MistralForCausalLM.from_pretrained(
         model_name,
         torch_dtype=torch.bfloat16 if torch.cuda.is_available() else torch.float32,
         device_map='auto',
-        cache_dir=root_prefix + "cache",
+        # cache_dir=root_prefix + "cache",
         max_thoughts=n_ahead + n_ahead_talk + 1,
         merged_talk_heads=merged_talk_heads,
         merged_lm_and_talk_heads=False,
@@ -95,7 +97,7 @@ def model_init(params):
     model.residual_think_head = residual_think_head
     model.optimize_lm_head_only_at_start = optimize_lm_head_only_at_start
     model.gumbel_temperature = gumbel_temperature
-    model.wandb_enabled = True
+    # model.wandb_enabled = False
     model.original_mode = original
     model.config_params = params
     model.run_start = int(time.time())
@@ -110,7 +112,7 @@ dataset = load_dataset(
     split=f"train[:{n_examples}]",
     ignore_verifications=True,
     num_proc=16,
-    cache_dir=root_prefix + "cache/datasets/",
+    # cache_dir=root_prefix + "cache/datasets/",
 )
 
 train_dataset = dataset.shuffle(seed=random_seed).map(preprocess_function, batched=True, writer_batch_size=200)
@@ -126,7 +128,7 @@ batch_size = full_batch_size // n_passes_global
 global_gradient_accumulation_steps = full_batch_size // batch_size
 run_id = int(time.time())
 training_args = TrainingArguments(
-    output_dir=root_prefix + f"cache/quietstar/{run_id}",
+    output_dir="/data/yutian/models/quite_star",
     learning_rate=1e-6,
     optim="adamw_torch_fused" if torch.cuda.is_available() else "adamw_torch",
     per_device_train_batch_size=batch_size,
